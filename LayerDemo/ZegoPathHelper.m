@@ -10,10 +10,8 @@
 
 @implementation ZegoPathHelper
 
-inline CGPathRef createPathScaledBasingOriginInBoundingBox(CGPathRef path,
-                                                         CGPoint origin,
-                                                         CGFloat scaleX,
-                                                         CGFloat scaleY) {
+#pragma mark - Scale
+inline CGPathRef createPathScaledBasingOriginInBoundingBox(CGPathRef path, CGPoint origin, CGFloat scaleX, CGFloat scaleY) {
     CGRect bounds = CGPathGetBoundingBox(path); // might want to use CGPathGetPathBoundingBox
     if (!_pointInRect(origin, bounds)) {
         return path;
@@ -21,67 +19,119 @@ inline CGPathRef createPathScaledBasingOriginInBoundingBox(CGPathRef path,
     return _createPathScaledBasingOrigin(path, origin, scaleX, scaleY);
 }
 
-
-
-
-inline CGPathRef createPathScaledBasingBoundingBoxOriginType(CGPathRef path,
-                                                             ZegoPathTransformOrigin originType,
-                                                             CGFloat scaleX,
-                                                             CGFloat scaleY) {
+inline CGPathRef createPathScaledBasingBoundingBoxOriginType(CGPathRef path, ZegoPathTransformOrigin originType, CGFloat scaleX, CGFloat scaleY) {
     CGRect bounds = CGPathGetBoundingBox(path); // might want to use CGPathGetPathBoundingBox
-    CGPoint origin = CGPointZero;
-    switch (originType) {
-        case ZegoPathTransformOriginTopLeft:      //左上
-            origin = CGPointMake(CGRectGetMinX(bounds), CGRectGetMinY(bounds));
-            break;
-        case ZegoPathTransformOriginTopRight:     //右上
-            origin = CGPointMake(CGRectGetMaxX(bounds), CGRectGetMinY(bounds));
-            break;
-        case ZegoPathTransformOriginBottomLeft:   //左下
-            origin = CGPointMake(CGRectGetMinX(bounds), CGRectGetMaxY(bounds));
-            break;
-        case ZegoPathTransformOriginBottomRight:  //右下
-            origin = CGPointMake(CGRectGetMaxX(bounds), CGRectGetMaxY(bounds));
-            break;
-        case ZegoPathTransformOriginTop:          //上
-            origin = CGPointMake(CGRectGetMidX(bounds), CGRectGetMinY(bounds));
-            break;
-        case ZegoPathTransformOriginLeft:         //左
-            origin = CGPointMake(CGRectGetMinX(bounds), CGRectGetMidY(bounds));
-            break;
-        case ZegoPathTransformOriginRight:        //右
-            origin = CGPointMake(CGRectGetMaxX(bounds), CGRectGetMidY(bounds));
-            break;
-        case ZegoPathTransformOriginBottom:       //下
-            origin = CGPointMake(CGRectGetMidX(bounds), CGRectGetMaxY(bounds));
-            break;
-        
-        default:
-            origin = CGPointMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds));
-            break;
-    }
+    CGPoint origin = _resolveBoundingBoxOrigin(bounds, originType);
     return _createPathScaledBasingOrigin(path, origin, scaleX, scaleY);
 }
 
+#pragma mark - Rotate
+inline CGPathRef createPathRotatedBasingOriginInBoundingBox(CGPathRef path, CGPoint origin, CGFloat angle) {
+    CGRect bounds = CGPathGetBoundingBox(path); // might want to use CGPathGetPathBoundingBox
+    if (!_pointInRect(origin, bounds)) {
+        return path;
+    }
+    return _createPathRotatedBasingOrigin(path, origin, angle);
+}
+
+inline CGPathRef createPathRotatedBasingBoundingBoxOriginType(CGPathRef path, ZegoPathTransformOrigin originType, CGFloat angle) {
+    CGRect bounds = CGPathGetBoundingBox(path); // might want to use CGPathGetPathBoundingBox
+    CGPoint origin = _resolveBoundingBoxOrigin(bounds, originType);
+    return _createPathRotatedBasingOrigin(path, origin, angle);
+}
+
 #pragma mark - Private
+CGPoint _resolveBoundingBoxOrigin(CGRect bounds, ZegoPathTransformOrigin originType) {
+    CGFloat x, y = 0;
+    switch (originType) {
+        case ZegoPathTransformOriginTopLeft:      //左上
+            x = CGRectGetMinX(bounds);
+            y = CGRectGetMinY(bounds);
+            break;
+        case ZegoPathTransformOriginTopRight:     //右上
+            x = CGRectGetMaxX(bounds);
+            y = CGRectGetMinY(bounds);
+            break;
+        case ZegoPathTransformOriginBottomLeft:   //左下
+            x = CGRectGetMinX(bounds);
+            y = CGRectGetMaxY(bounds);
+            break;
+        case ZegoPathTransformOriginBottomRight:  //右下
+            x = CGRectGetMaxX(bounds);
+            y = CGRectGetMaxY(bounds);
+            break;
+        case ZegoPathTransformOriginTop:          //上
+            x = CGRectGetMidX(bounds);
+            y = CGRectGetMinY(bounds);
+            break;
+        case ZegoPathTransformOriginLeft:         //左
+            x = CGRectGetMinX(bounds);
+            y = CGRectGetMidY(bounds);
+            break;
+        case ZegoPathTransformOriginRight:        //右
+            x = CGRectGetMaxX(bounds);
+            y = CGRectGetMidY(bounds);
+            break;
+        case ZegoPathTransformOriginBottom:       //下
+            x = CGRectGetMidX(bounds);
+            y = CGRectGetMaxY(bounds);
+            break;
+        
+        default:
+            x = CGRectGetMidX(bounds);
+            y = CGRectGetMidY(bounds);             // 默认 center
+            break;
+    }
+    return CGPointMake(x, y);
+}
+
+//CGPathRef _createPathRotatedBasingOrigin(CGPathRef path,
+//                                        CGPoint origin,
+//                                        CGFloat angle) {
+//    CGAffineTransform transform = CGAffineTransformIdentity;
+//    transform = CGAffineTransformTranslate(transform, origin.x, origin.y);
+//    transform = CGAffineTransformRotate(transform, angle);
+//    transform = CGAffineTransformTranslate(transform, -origin.x, -origin.y);
+//    return CGPathCreateCopyByTransformingPath(path, &transform);
+//}
+//
+//CGPathRef _createPathScaledBasingOrigin(CGPathRef path,
+//                                        CGPoint origin,
+//                                        CGFloat scaleX,
+//                                        CGFloat scaleY) {
+//    CGAffineTransform transform = CGAffineTransformIdentity;
+//    transform = CGAffineTransformTranslate(transform, origin.x, origin.y);
+//    transform = CGAffineTransformScale(transform, scaleX, scaleY);
+//    transform = CGAffineTransformTranslate(transform, -origin.x, -origin.y);
+//    return CGPathCreateCopyByTransformingPath(path, &transform);
+//}
+CGPathRef _createPathRotatedBasingOrigin(CGPathRef path,
+                                        CGPoint origin,
+                                        CGFloat angle) {
+    return _createPathBasingTranformOrigin(path, origin, ^CGAffineTransform(CGAffineTransform transform) {
+        return CGAffineTransformRotate(transform, angle);;
+    });
+}
 
 CGPathRef _createPathScaledBasingOrigin(CGPathRef path,
                                         CGPoint origin,
                                         CGFloat scaleX,
                                         CGFloat scaleY) {
+    return _createPathBasingTranformOrigin(path, origin, ^CGAffineTransform(CGAffineTransform transform) {
+        return CGAffineTransformScale(transform, scaleX, scaleY);
+    });
+}
+
+CGPathRef _createPathBasingTranformOrigin(CGPathRef path, CGPoint origin, CGAffineTransform(^block)(CGAffineTransform transform)) {
     CGAffineTransform transform = CGAffineTransformIdentity;
     transform = CGAffineTransformTranslate(transform, origin.x, origin.y);
-    transform = CGAffineTransformScale(transform, scaleX, scaleY);
+    transform = block(transform);
     transform = CGAffineTransformTranslate(transform, -origin.x, -origin.y);
     return CGPathCreateCopyByTransformingPath(path, &transform);
 }
 
 static bool _pointInRect(CGPoint point, CGRect rect) {
-    if (point.x < CGRectGetMinX(rect)) return NO;
-    if (point.x > CGRectGetMaxX(rect)) return NO;
-    if (point.y < CGRectGetMinY(rect)) return NO;
-    if (point.y > CGRectGetMaxY(rect)) return NO;
-    return YES;
+    return CGRectContainsPoint(rect, point);
 }
 
 @end

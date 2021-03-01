@@ -23,15 +23,12 @@ typedef NS_ENUM(NSUInteger, ZegoPathTransformOrigin) {
 
 @interface ZegoPathHelper : NSObject
 
-CGPathRef createPathScaledBasingOriginInBoundingBox(CGPathRef path,
-                                                    CGPoint origin,
-                                                    CGFloat scaleX,
-                                                    CGFloat scaleY);
-
-CGPathRef createPathScaledBasingBoundingBoxOriginType(CGPathRef path,
-                                                      ZegoPathTransformOrigin originType,
-                                                      CGFloat scaleX,
-                                                      CGFloat scaleY);
+// Scale
+CGPathRef createPathScaledBasingOriginInBoundingBox(CGPathRef path, CGPoint origin, CGFloat scaleX, CGFloat scaleY);
+CGPathRef createPathScaledBasingBoundingBoxOriginType(CGPathRef path, ZegoPathTransformOrigin originType, CGFloat scaleX, CGFloat scaleY);
+// Rotate
+CGPathRef createPathRotatedBasingOriginInBoundingBox(CGPathRef path, CGPoint origin, CGFloat angle);
+CGPathRef createPathRotatedBasingBoundingBoxOriginType(CGPathRef path, ZegoPathTransformOrigin originType, CGFloat angle);
 
 @end
 
