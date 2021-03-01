@@ -151,7 +151,7 @@ CGAffineTransform rotateTransform(CGPathRef path, CGFloat radians) {
     self.scaleX = self.scaleX * 1.01;
     self.scaleY = self.scaleY * 1.01;
 //    self.pathLayer.path = createPathScaledAroundBoundingBoxCenter(self.pathLayer.path, 1.01, 1.01);
-    self.pathLayer.path = createPathScaledBasingBoundingBoxOriginType(self.pathLayer.path, ZegoPathTransformOriginLeft, 1.01, 1.01);
+    self.pathLayer.path = createPathScaledBasingBoundingBoxOriginType(self.pathLayer.path, ZegoPathTransformOriginCenter, 1.01, 1.01);
 //    self.pathLayer.affineTransform = scaleTransform(self.pathLayer.path, self.scaleX, self.scaleY);
     
     CGRect bounding = CGPathGetBoundingBox(self.pathLayer.path);
@@ -169,25 +169,25 @@ CGAffineTransform rotateTransform(CGPathRef path, CGFloat radians) {
 }
 
 - (void)rotate {
-//    [self rotatePath];
-    [self rotateImage];
+    [self rotatePath];
+//    [self rotateImage];
 }
 
 - (void)rotateImage {
     self.angle += M_PI / 8;
 //    _imgLayer.affineTransform = CGAffineTransformConcat(_imgLayer.affineTransform, CGAffineTransformMakeRotation(self.angle));
-    _imgLayer.affineTransform = CGAffineTransformMakeRotation(self.angle);
+//    _imgLayer.affineTransform = CGAffineTransformMakeRotation(self.angle);
 }
 
 - (void)rotatePath {
-    //    CGPathRef path = createPathRotatedAroundBoundingBoxCenter(self.pathLayer.path, M_PI / 8);
-    //    self.pathLayer.path = path;
-    //    CGPathRelease(path);
-    self.angle += M_PI / 8;
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-    self.pathLayer.affineTransform = rotateTransform(self.pathLayer.path, self.angle);
-    [CATransaction commit];
+        CGPathRef path = createPathRotatedAroundBoundingBoxCenter(self.pathLayer.path, M_PI / 8);
+        self.pathLayer.path = path;
+        CGPathRelease(path);
+//    self.angle += M_PI / 8;
+//    [CATransaction begin];
+//    [CATransaction setDisableActions:YES];
+//    self.pathLayer.affineTransform = rotateTransform(self.pathLayer.path, self.angle);
+//    [CATransaction commit];
 }
 
 - (void)resetScale {
